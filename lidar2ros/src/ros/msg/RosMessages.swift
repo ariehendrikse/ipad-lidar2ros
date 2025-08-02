@@ -118,3 +118,18 @@ struct geometry_msgs__TransformStamped: RosMsg {
 struct tf2_msgs__TFMessage: RosMsg {
     var transforms: [geometry_msgs__TransformStamped]
 }
+
+/// lidar2ros/BoundingBox3D
+struct lidar2ros__BoundingBox3D: RosMsg {
+    var header: std_msgs__Header
+    var center: geometry_msgs__Vector3
+    var size: geometry_msgs__Vector3
+    var orientation: geometry_msgs__Quaternion
+}
+
+/// lidar2ros/BoundingBox3DArray
+struct lidar2ros__BoundingBox3DArray: RosMsg {
+    var header: std_msgs__Header
+    var boxes: [lidar2ros__BoundingBox3D]
+}
+

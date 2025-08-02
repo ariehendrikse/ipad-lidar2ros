@@ -1,6 +1,6 @@
 # &nbsp; [![lidar2ros app icon](./app-icon/lidar2ros_appicon_rounded_readme.png)](./app-icon/lidar2ros_appicon.psd) &nbsp; lidar2ros for iPad
 
-Publish iPad Pro LiDAR data & more in ROS 2.
+Publish iPad Pro LiDAR data, DepthAnythingV2-based 3D bounding boxes, and more in ROS 2.
 
 Note: this repository only contains the source code & assets.
 To run the app, set up an Xcode project and import this.
@@ -52,6 +52,7 @@ The table below lists the data available for publishing.
 | Transforms<sup>1</sup> |                    |                           |               |
 | LiDAR depth map        | `/ipad/depth`      | `sensor_msgs/Image`       | `ipad_camera` |
 | LiDAR point cloud      | `/ipad/pointcloud` | `sensor_msgs/PointCloud2` | `ipad`        |
+| 3D bounding boxes      | `/ipad/bounding_boxes` | `lidar2ros/BoundingBox3DArray` | `ipad`        |
 | Camera image           | `/ipad/camera`     | `sensor_msgs/Image`       | `ipad_camera` |
 
 1. tf tree:
@@ -92,3 +93,9 @@ See [`LICENSE`](./LICENSE).
 
 Some 3rd party code is used & distributed under the MIT license.
 See [`LICENSE.3RD-PARTY`](./LICENSE.3RD-PARTY).
+
+## Notes/Extra Tips
+
+- Make sure to provide the path to Info.plist under Build Settings
+- Remove Info.plist from Build Phases -> Copy Bundle resources
+- Under Build Settings -> Swift Compiler - General -> Objective-C Bridging Header, make sure to provide the correct path to SceneDepthPointCloud-Bridging-Header.h

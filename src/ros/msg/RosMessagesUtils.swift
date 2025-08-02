@@ -143,6 +143,18 @@ final class RosMessagesUtils {
         let tfIpad = self.transformStampedFromTf(self.arkitReferenceInverse, time: time, frame_id: "ipad_camera", child_frame_id: "ipad")
         return tf2_msgs__TFMessage(transforms: [tfArkitRef, tfIpad])
     }
+    // Convert array of BoundingBox to a ROS message.
+    public static func boundingBoxesToMsg(time: Double, boxes: [BoundingBox]) -> lidar2ros__BoundingBox3DArray {
+        let header = std_msgs__Header(stamp: self.getTimestamp(time), frame_id: "ipad")
+        let msgs = boxes.map { box -> lidar2ros__BoundingBox3D in
+            let center = geometry_msgs__Vector3(x: Float64(box.center.x), y: Float64(box.center.y), z: Float64(box.center.z))
+            let size = geometry_msgs__Vector3(x: Float64(box.size.x), y: Float64(box.size.y), z: Float64(box.size.z))
+            let ori = geometry_msgs__Quaternion(x: Float64(box.orientation.vector.x), y: Float64(box.orientation.vector.y), z: Float64(box.orientation.vector.z), w: Float64(box.orientation.vector.w))
+            return lidar2ros__BoundingBox3D(header: header, center: center, size: size, orientation: ori)
+        }
+        return lidar2ros__BoundingBox3DArray(header: header, boxes: msgs)
+    }
+
     
     /// Get TransformStamped message given various parameters.
     private static func transformStampedFromTf(_ tf: simd_float4x4, time: Double, frame_id: String, child_frame_id: String) -> geometry_msgs__TransformStamped {

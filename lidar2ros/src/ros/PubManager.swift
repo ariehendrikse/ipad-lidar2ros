@@ -31,6 +31,10 @@ final class PubManager {
     private var pubDepth: ControlledPublisher
     private var pubPointCloud: ControlledPublisher
     private var pubCamera: ControlledPublisher
+    private var pubBoundingBoxes: ControlledPublisher
+
+    private let boundingBoxDetector = BoundingBoxDetector()
+
     
     public init() {
         /// Create controlled pub objects for all publishers
@@ -40,6 +44,7 @@ final class PubManager {
         self.pubDepth = ControlledPublisher(interface: self.interface, type: sensor_msgs__Image.self)
         self.pubPointCloud = ControlledPublisher(interface: self.interface, type: sensor_msgs__PointCloud2.self)
         self.pubCamera = ControlledPublisher(interface: self.interface, type: sensor_msgs__Image.self)
+        self.pubBoundingBoxes = ControlledPublisher(interface: self.interface, type: lidar2ros__BoundingBox3DArray.self)
         
         let controlledPubs: [PubController.PubType: [ControlledPublisher]] = [
             //.transforms: [self.pubTf, self.pubTfStatic],
@@ -47,6 +52,7 @@ final class PubManager {
             .depth: [self.pubDepth],
             .pointCloud: [self.pubPointCloud],
             .camera: [self.pubCamera],
+            .boundingBoxes: [self.pubBoundingBoxes],
         ]
         self.pubController = PubController(pubs: controlledPubs, interface: self.interface)
     }
@@ -79,6 +85,7 @@ final class PubManager {
         self.startPubThread(id: "tf", pubType: .transforms, publishFunc: self.publishTf)
         self.startPubThread(id: "depth", pubType: .depth, publishFunc: self.publishDepth)
         self.startPubThread(id: "pointcloud", pubType: .pointCloud, publishFunc: self.publishPointCloud)
+        self.startPubThread(id: "bounding_boxes", pubType: .boundingBoxes, publishFunc: self.publishBoundingBoxes)
         // TODO fix/implement
         // self.startPubThread(id: "camera", pubType: .camera, publishFunc: self.publishCamera)
     }
@@ -116,6 +123,17 @@ final class PubManager {
         self.pubPointCloud.publish(RosMessagesUtils.pointsToPointCloud2(time: timestamp, points: pointCloud))
     }
     
+    private func publishBoundingBoxes() {
+        guard let currentFrame = self.session.currentFrame else {
+            return
+        }
+        let timestamp = currentFrame.timestamp
+        let boxes = self.boundingBoxDetector.detectBoundingBoxes(frame: currentFrame)
+        let msg = RosMessagesUtils.boundingBoxesToMsg(time: timestamp, boxes: boxes)
+        self.pubBoundingBoxes.publish(msg)
+    }
+
+
 //    private func publishCamera() {
 //        guard let currentFrame = self.session.currentFrame else {
 //            return
